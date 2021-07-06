@@ -2,15 +2,20 @@ const express = require("express");
 const { graphqlHTTP } = require("express-graphql");
 const schema = require("./schema/schema");
 const mongoose = require("mongoose");
+const cors = require("cors");
 
 const app = express();
 
+// allow cross-origin requests
+app.use(cors());
+require("dotenv").config();
 //connect to mongodb
 mongoose.connect(
-  "mongodb+srv://dannywmarks:Jud0g1rl!@jiujitsuql.4f1fe.mongodb.net/test", { useNewUrlParser: true }
+  process.env.MONGO_URI,
+  { useNewUrlParser: true }
 );
 mongoose.connection.once("open", () => {
-  console.log("connected to database");
+  console.log("database connected");
 });
 
 app.use(

@@ -8,6 +8,7 @@ const {
   GraphQLSchema,
   GraphQLID,
   GraphQLList,
+  GraphQLNonNull,
 } = graphql;
 
 // dummy data
@@ -35,6 +36,7 @@ const PositionType = new GraphQLObjectType({
       type: new GraphQLList(AttackType),
       resolve(parent, args) {
         // return _.filter(attacks, { positionId: parent.id });
+        return Attack.find({ positionId: parent.id });
       },
     },
   }),
@@ -51,6 +53,7 @@ const AttackType = new GraphQLObjectType({
       resolve(parent, args) {
         console.log(parent);
         // return _.find(positions, { id: parent.positionId });
+        return Position.findById(parent.positionId);
       },
     },
   }),
@@ -65,6 +68,7 @@ const RootQuery = new GraphQLObjectType({
       resolve(parent, args) {
         // code to get data from db
         // return _.find(positions, { id: args.id });
+        return Position.findById(args.id);
       },
     },
     attack: {
@@ -73,18 +77,21 @@ const RootQuery = new GraphQLObjectType({
       resolve(parent, args) {
         // code to get data from db
         // return _.find(attacks, { id: args.id });
+        return Attack.findById(args.id);
       },
     },
     positions: {
       type: new GraphQLList(PositionType),
       resolve(parent, args) {
         // return positions
+        return Position.find({});
       },
     },
     attacks: {
       type: new GraphQLList(AttackType),
       resolve(parent, args) {
         // return attacks
+        return Attack.find({});
       },
     },
   },
@@ -97,35 +104,38 @@ const Mutation = new GraphQLObjectType({
       type: AttackType,
       args: {
         name: {
-          type: GraphQLString,
+          type: new GraphQLNonNull(GraphQLString),
         },
         link: {
-          type: GraphQLString,
+          type: new GraphQLNonNull(GraphQLString),
+        },
+        positionId: {
+          type: new GraphQLNonNull(GraphQLID),
         },
       },
       resolve(parent, args) {
         let attack = new Attack({
           name: args.name,
           link: args.link,
+          positionId: args.positionId,
         });
-        return attack.save()
+        return attack.save();
       },
     },
     addPosition: {
       type: PositionType,
       args: {
         name: {
-          type: GraphQLString,
-        }
+          type: new GraphQLNonNull(GraphQLString),
+        },
       },
       resolve(parent, args) {
-        let attack = new Attack({
+        let attack = new Position({
           name: args.name,
-          link: args.link,
         });
-        return attack.save()
+        return attack.save();
       },
-    }
+    },
   },
 });
 
